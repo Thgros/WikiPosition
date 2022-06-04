@@ -17,14 +17,14 @@ namespace WikiPosition.Data.Service{
             var uri = $"{settings.BaseUrl}?action=query&list=geosearch&gscoord={latitude}|{longitude}&gsradius=500&gslimit=50&format=json";
 
             var response = await QueryWikipediaApi(uri);
-            return response?.Query.GeoSearch;
+            return response?.Query?.GeoSearch;
         }
 
         public async Task<WikipediaPageContent?> GetPageContent(int pageId)
         {
             var uri = $"{settings.BaseUrl}?action=query&format=json&prop=extracts&pageids={pageId}&formatversion=2&exlimit=1";
             var response = await QueryWikipediaApi(uri);
-            return response?.Query.Pages[0];
+            return response?.Query?.Pages[0];
         }
 
         public async Task<WikipediaResponse?> QueryWikipediaApi(string uri)
@@ -42,9 +42,8 @@ namespace WikiPosition.Data.Service{
             catch(Exception ex) // Could be ArgumentNullException or UnsupportedMediaTypeException
             {
                 Console.WriteLine(ex.ToString());
+                throw;
             }
-
-            return null;
         }
     }
 }
