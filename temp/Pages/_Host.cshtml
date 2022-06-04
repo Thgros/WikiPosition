@@ -1,0 +1,17 @@
+﻿@page "/"
+@namespace WikiPosition.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = "_Layout";
+}
+
+<component type="typeof(App)" render-mode="ServerPrerendered" />
+
+    <script>
+        window.getCoords = async () => {
+            const pos = await new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject);
+            });
+            return [pos.coords.latitude, pos.coords.longitude];
+        };
+    </script>
