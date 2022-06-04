@@ -14,10 +14,17 @@ namespace WikiPosition.Data.Service{
 
         public async Task<List<WikipediaPagePosition>?> GetLocalWikipediaPages(double latitude, double longitude)
         {
-            var uri = $"{settings.BaseUrl}?action=query&list=geosearch&gscoord={latitude}|{longitude}&gsradius=10000&gslimit=100&format=json";
+            var uri = $"{settings.BaseUrl}?action=query&list=geosearch&gscoord={latitude}|{longitude}&gsradius=500&gslimit=50&format=json";
 
             var response = await QueryWikipediaApi(uri);
             return response?.Query.GeoSearch;
+        }
+
+        public async Task<WikipediaPageContent?> GetPageContent(int pageId)
+        {
+            var uri = $"{settings.BaseUrl}?action=query&format=json&prop=extracts&pageids={pageId}&formatversion=2&exlimit=1";
+            var response = await QueryWikipediaApi(uri);
+            return response?.Query.Pages[0];
         }
 
         public async Task<WikipediaResponse?> QueryWikipediaApi(string uri)

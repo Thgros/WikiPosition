@@ -3,94 +3,44 @@
 <PageTitle>Wikipedia data</PageTitle>
 
 @using System.Text.Json.Nodes
-@using WikiPosition.Pages.Models
 @using WikiPosition.Data.Model
 @using WikiPosition.Data.Service
 @inject WikipediaQueryService WikipediaQueryService
 @inject IJSRuntime JS
 
-
-<h1>Wikipedia data</h1>
-
-<p>This component demonstrates fetching data from a service.</p>
-
-<EditForm Model="@wikipediaQueryInputModel" OnValidSubmit="@HandleValidSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-
-    <InputNumber id="latitude" @bind-Value="wikipediaQueryInputModel.Latitude" />
-    <InputNumber id="longitude" @bind-Value="wikipediaQueryInputModel.Longitude" />
-
-    <button type="submit">Submit</button>
-</EditForm>
-
-
-
-@if (positions == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>PageId</th>
-                <th>Latitude</th>
-                <th>Longitude</th>
-                <th>Distance</th>
-                <th>Ns</th>
-                <th>Primary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var position in positions)
-            {
-                <tr>
-                    <td>@position.Title</td>
-                    <td>@position.PageId</td>
-                    <td>@position.Latitude</td>
-                    <td>@position.Longitude</td>
-                    <td>@position.Distance</td>
-                    <td>@position.Ns</td>
-                    <td>@position.Primary</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+<div id="map"/>
 
 @code {
     private List<WikipediaPagePosition>? positions;
-    
-    private WikipediaQueryInputModel wikipediaQueryInputModel = new ();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
-    {  
+    {
         try
         {
-            var result = await JS.InvokeAsync<JsonArray>("getCoords");
-            positions = await WikipediaQueryService.GetLocalWikipediaPages(double.Parse(result[0].ToString()), double.Parse(result[1].ToString()));
-            InvokeAsync(() =>
+            if(firstRender)
+            {
+                var result = await JS.InvokeAsync<JsonArray>("getCoords");
+                var lat = double.Parse(result[0].ToString());
+                var lng = double.Parse(result[1].ToString());
+
+                await JS.InvokeVoidAsync("displayMap", new object[]{lat, lng});
+                positions = await WikipediaQueryService.GetLocalWikipediaPages(lat, lng);
+
+                foreach(var pos in positions)
+                {
+                    var pageContent = await WikipediaQueryService.GetPageContent(pos.PageId);
+                    await JS.InvokeVoidAsync("addPin", new object[] { pos.Title, pageContent.Extract, pos.Latitude, pos.Longitude });
+                }
+                await InvokeAsync(() =>
                 {
                     StateHasChanged();
                 });
+            }
         }
         catch(Exception ex){
             Console.WriteLine(ex.ToString());
         }finally{
             await base.OnAfterRenderAsync(firstRender);
         }
-    }
-
-    
-
-    private async Task HandleValidSubmit()
-    {
-        positions = await WikipediaQueryService
-                        .GetLocalWikipediaPages(
-                            wikipediaQueryInputModel.Latitude,
-                            wikipediaQueryInputModel.Longitude);
     }
 }

@@ -6,4 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Pages\Models\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Pages\Models\" />
+  </ItemGroup>
 </Project>

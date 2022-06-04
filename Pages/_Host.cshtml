@@ -8,10 +8,50 @@
 <component type="typeof(App)" render-mode="ServerPrerendered" />
 
     <script>
+        var map = null;
         window.getCoords = async () => {
             const pos = await new Promise((resolve, reject) => {
                 navigator.geolocation.getCurrentPosition(resolve, reject);
             });
             return [pos.coords.latitude, pos.coords.longitude];
         };
+
+        window.displayMap = (lat, long) => 
+        {
+            map = L.map('map').setView([lat, long], 18);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            const myCustomColour = '#ff726f'
+
+            const markerHtmlStyles = `
+              background-color: ${myCustomColour};
+              width: 2rem;
+              height: 2rem;
+              display: block;
+              left: -1rem;
+              top: -1.5rem;
+              position: relative;
+              border-radius: 1rem 1rem 0;
+              transform: rotate(45deg);
+              border: 1px solid #ff726f`
+
+            const customIcon = L.divIcon({
+                className: "my-custom-pin",
+                iconAnchor: [0, 24],
+                labelAnchor: [-6, 0],
+                popupAnchor: [0, -36],
+                html: `<span style="${markerHtmlStyles}" />`
+            })
+
+            var marker = L.marker([lat, long], { icon: customIcon }).addTo(map);
+            marker.bindPopup("<b>Your current position</b>");
+            }
+
+        window.addPin = (name, description, lat, long) => {
+            var marker = L.marker([lat, long]).addTo(map);
+            marker.bindPopup("<b>" + name + "</b><br>" + description, { maxHeight: "400" })
+        }
     </script>
