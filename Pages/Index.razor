@@ -21,8 +21,8 @@
             if(firstRender)
             {
                 var result = await JS.InvokeAsync<JsonArray>("getCoords");
-                var lat = double.Parse(result[0].ToString(), CultureInfo.CurrentCulture);
-                var lng = double.Parse(result[1].ToString(), CultureInfo.CurrentCulture);
+                var lat = result[0]!.GetValue<double>();
+                var lng = result[1]!.GetValue<double>();
 
                 await JS.InvokeVoidAsync("displayMap", new object[]{lat, lng});
                 positions = await WikipediaQueryService.GetLocalWikipediaPages(lat, lng);
