@@ -5,6 +5,7 @@
 @using System.Text.Json.Nodes
 @using WikiPosition.Data.Model
 @using WikiPosition.Data.Service
+@using System.Globalization
 @inject WikipediaQueryService WikipediaQueryService
 @inject IJSRuntime JS
 
@@ -20,8 +21,8 @@
             if(firstRender)
             {
                 var result = await JS.InvokeAsync<JsonArray>("getCoords");
-                var lat = double.Parse(result[0].ToString());
-                var lng = double.Parse(result[1].ToString());
+                var lat = double.Parse(result[0].ToString(), CultureInfo.CurrentCulture);
+                var lng = double.Parse(result[1].ToString(), CultureInfo.CurrentCulture);
 
                 await JS.InvokeVoidAsync("displayMap", new object[]{lat, lng});
                 positions = await WikipediaQueryService.GetLocalWikipediaPages(lat, lng);
