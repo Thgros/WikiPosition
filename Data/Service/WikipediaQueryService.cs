@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.Extensions.Options;
 using WikiPosition.Data.Model;
 using WikiPosition.Option;
@@ -14,7 +15,7 @@ namespace WikiPosition.Data.Service{
 
         public async Task<List<WikipediaPagePosition>?> GetLocalWikipediaPages(double latitude, double longitude)
         {
-            var uri = $"{settings.BaseUrl}?action=query&list=geosearch&gscoord={latitude}|{longitude}&gsradius=500&gslimit=50&format=json";
+            var uri = $"{settings.BaseUrl}?action=query&list=geosearch&gscoord={latitude.ToString(CultureInfo.InvariantCulture)}|{longitude.ToString(CultureInfo.InvariantCulture)}&gsradius=500&gslimit=50&format=json";
 
             var response = await QueryWikipediaApi(uri);
             return response?.Query?.GeoSearch;
@@ -22,7 +23,7 @@ namespace WikiPosition.Data.Service{
 
         public async Task<WikipediaPageContent?> GetPageContent(int pageId)
         {
-            var uri = $"{settings.BaseUrl}?action=query&format=json&prop=extracts&pageids={pageId}&formatversion=2&exlimit=1";
+            var uri = $"{settings.BaseUrl}?action=query&format=json&prop=extracts&pageids={pageId.ToString(CultureInfo.InvariantCulture)}&formatversion=2&exlimit=1";
             var response = await QueryWikipediaApi(uri);
             return response?.Query?.Pages[0];
         }
